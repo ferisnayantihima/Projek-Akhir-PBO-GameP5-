@@ -88,3 +88,105 @@ class Map {
     createCanvas(this.width * 30, this.height * 30);
     this.selectRandomMap();
   }
+selectRandomMap() {
+    var tempScheme = 0;
+
+    $.ajax({
+      async: false,
+      global: false,
+      url: "maps/map.json",
+      dataType: "json",
+      success: function (data) {
+        console.log("done");
+        tempScheme = data["map"];
+      },
+    });
+
+    this.scheme = tempScheme;
+  }
+
+  putEntity(hero, monsters) {
+    this.hero = hero;
+    this.monsters = monsters;
+  }
+
+  printMap() {
+    fill(0, 0, 0);
+
+    noStroke();
+    rect(0, 0, 450, 30);
+    rect(0, 0, 30, 450);
+    rect(0, 420, 450, 30);
+    rect(420, 0, 30, 450);
+
+    this.hero.draw();
+
+    for (const id in this.monsters) {
+      this.monsters[id].moveRandom();
+      this.monsters[id].draw();
+    }
+
+    console.log(this.countMonsters());
+  }
+
+  checkCollision(x, y) {
+    var collision = false;
+    for (const coord in this.scheme) {
+      if (this.scheme[coord][0] === x && this.scheme[coord][1] === y) {
+        collision = true;
+        break;
+      }
+    }
+    return collision;
+  }
+
+  moveHero(direction) {
+    if (direction === "up") {
+      this.hero.moveUp();
+    } else if (direction === "down") {
+      this.hero.moveDown();
+    } else if (direction === "left") {
+      this.hero.moveLeft();
+    } else if (direction === "right") {
+      this.hero.moveRight();
+    }
+  }
+
+  initiateCombat() {
+    var status = -1;
+    for (const id in this.monsters) {
+      if (this.monsters[id].getX() === this.hero.getX() && this.monsters[id].getY() === this.hero.getY()) {
+        status = id;
+        break;
+      }
+    }
+
+    return status;
+  }
+
+  startCombat() {
+    var monId = this.initiateCombat();
+    if (monId !== -1) {
+      if (this.monsters[monId].getPowerLevel() < this.hero.getPowerLevel()) {
+        this.monsters.splice(monId, 1);
+        this.score += 10;
+      } else {
+        console.log("Lose!!!");
+        window.location.replace("gameover.html");
+      }
+    }
+  }
+
+  countMonsters() {
+    return this.monsters.length;
+  }
+
+  getScore() {
+    return this.score;
+  }
+
+  sleep(miliseconds) {
+    var currentTime = new Date().getTime();
+    while (currentTime + miliseconds >= new Date().getTime()) { }
+  }
+}
