@@ -190,3 +190,98 @@ selectRandomMap() {
     while (currentTime + miliseconds >= new Date().getTime()) { }
   }
 }
+class Entity {
+  constructor(width, height, x, y, color, map, atk, hp) {
+    this.width = width;
+    this.height = height;
+    this.x = x;
+    this.y = y;
+    this.color = color;
+    this.map = map;
+    this.atk = atk;
+    this.hp = hp;
+  }
+
+  getX() {
+    return this.x;
+  }
+
+  getY() {
+    return this.y;
+  }
+
+  getPowerLevel() {
+    return this.atk * 4 + this.hp * 0.5;
+  }
+
+  draw() {
+    if (this.color === "blue") {
+      fill(30, 144, 255);
+    } else if (this.color === "gray") {
+      fill(105, 105, 105);
+    }
+    circle(this.x * 30 + 5, this.y * 30 + 5, this.width, this.height);
+  }
+
+  move(x, y) {
+    if (!this.map.checkCollision(x, y)) {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  moveRight() {
+    if (this.x < 13) {
+      this.move(this.x + 1, this.y);
+    }
+  }
+
+  moveLeft() {
+    if (this.x > 1) {
+      this.move(this.x - 1, this.y);
+    }
+  }
+
+  moveDown() {
+    if (this.y < 13) {
+      this.move(this.x, this.y + 1);
+    }
+  }
+
+  moveUp() {
+    if (this.y > 1) {
+      this.move(this.x, this.y - 1);
+    }
+  }
+}
+class Hero extends Entity {
+  constructor(width, height, x, y, color, map, atk, hp) {
+    super(width, height, x, y, color, map, atk, hp);
+  }
+}
+
+class Monster extends Entity {
+  constructor(width, height, x, y, color, map, atk, hp) {
+    super(width, height, x, y, color, map, atk, hp);
+    this.moveCount = 0;
+  }
+
+  moveRandom() {
+    var direction = Math.floor(Math.random() * 4);
+    if (this.moveCount === 50) {
+      if (direction === 0) {
+        this.moveRight();
+      } else if (direction === 1) {
+        this.moveLeft();
+      } else if (direction === 2) {
+        this.moveUp();
+      } else if (direction === 3) {
+        this.moveDown();
+      }
+
+      this.moveCount = 0;
+    } else {
+      this.moveCount++;
+    }
+  }
+}
